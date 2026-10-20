@@ -1,0 +1,9 @@
+##
+# fuxiPkg package declaration.
+#
+# sheng's equivalent (sheng.dec) is an empty file: every GUID and PCD the
+# platform needs comes from KailuaPkg / SiliciumPkg / QualcommPkg. fuxi keeps
+# that arrangement.
+#
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##

@@ -1,0 +1,56 @@
+#
+# fuxi (Xiaomi 13, SM8550) — build_uefi.py device config
+#
+# Modeled on Resources/Configs/sheng.toml from UniXNU/uefi-sheng. The values
+# that differ are marked WHY, because each one was measured rather than copied.
+#
+# Read by build_uefi.py: it compiles BootShim with these FD values, appends the
+# shim to the firmware volume, gzips the pair, appends the device tree, and
+# passes the result to Resources/Scripts/mkbootimg.py.
+#
+
+#
+# Boot Shim Configs
+#
+# 1 = emit the ARM64 image header in front of the shim. The stock ABL verifies
+# that header before jumping (see the UniXNU overview), so it stays on.
+[boot_shim]
+requires_kernel_header = true
+
+#
+# UEFI FD Configs
+#
+# Source: this device's own `uefiplatLA.cfg`, extracted from xbl_config_a:
+#     0xA7000000, 0x00400000, "UEFI FD"
+#
+# Do NOT copy sheng's 0xA7100000 / 0x300000. sheng places a 3 MiB image inside
+# the shared 4 MiB window; fuxi uses the whole window from its base.
+[uefi_fd]
+base = 0xA7000000
+size = 0x400000
+
+#
+# Android Boot Image Kernel Configs
+#
+# gzip: BootShim + firmware volume, exactly as the UniXNU overview describes.
+# append_dtb: the device tree goes after the gzip stream, inside the kernel
+# field. BootShim/MemoryMapLib both expect it there.
+[boot_image_kernel]
+kernel_compression = "gzip"
+append_dtb         = true
+
+#
+# Android Boot Image Configs
+#
+# header_version = 3, NOT sheng's 0.
+#
+# Measured on this device 2026-10-21: `fastboot boot` of Mu-Silicium's
+# Mu-qrd8550.img (an ANDROID! header_version 3 container, kernel at 0x1000,
+# gzip + appended FDT) returned "Booting OKAY". No v0 image has been tested on
+# fuxi, and SM8550 Mu releases ship v3, so v3 is the evidenced choice.
+#
+# With header v3 the base / kernel_offset / tags_offset / pagesize fields do
+# not exist; mkbootimg ignores them. If the build script rejects
+# header_version = 3, fall back to 0 and re-run the ABL probe first.
+[boot_image]
+header_version = 3
