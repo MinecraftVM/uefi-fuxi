@@ -55,8 +55,8 @@ READ_LOCK_STATUS   = TRUE
   INF UniXNUPkg/Application/UniXNU/UniXNU.inf
   INF UniXNUPkg/Driver/UniXNUDxe/UniXNUDxe.inf
 
-  # DarwinBoot
-  INF DarwinBootPkg/Driver/DarwinBoot.inf
+  # DarwinBoot is added by Include/DXE.inc; listing it here too makes GenFv
+  # reject the build (duplicate FILE_GUID in the FV).
 
   # IORT DT
   INF QcomPkg/Drivers/IortDtDxe/IortDtDxe.inf
