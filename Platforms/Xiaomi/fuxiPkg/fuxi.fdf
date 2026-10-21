@@ -93,10 +93,18 @@ READ_LOCK_STATUS   = TRUE
 
   INF SiliciumPkg/Sec/Sec.inf
 
+  # Bring-up: embed FVMAIN uncompressed.
+  #
+  # With the GUIDed LZMA wrapper, SEC printed
+  #     Decompress Failed - Invalid Parameter
+  #     SEC: FV decompressed (Not Found)
+  # and stopped before DXE. The section itself is well formed (GUID
+  # ee4e5898, dataoffset 24, attrs PROCESSING_REQUIRED, LZMA props 5d/16 MiB,
+  # 3,580,936 bytes decoded), the guided handler is registered and the
+  # allocator cannot reach the FD, so LZMA is removed from the path to see
+  # whether SEC gets to DXE. FVMAIN is ~3.6 MiB, which still fits the 4 MiB FD.
   FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
-    SECTION GUIDED EE4E5898-3914-4259-9D6E-DC7BD79403CF PROCESSING_REQUIRED = TRUE {
-      SECTION FV_IMAGE = FVMAIN
-    }
+    SECTION FV_IMAGE = FVMAIN
   }
 
   !include SiliciumPkg/Common.fdf.inc
