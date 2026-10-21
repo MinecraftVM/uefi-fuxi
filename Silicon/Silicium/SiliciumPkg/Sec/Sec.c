@@ -189,8 +189,16 @@ SecMain (VOID)
       UINT32  DtSize  = SwapBytes32 (*(UINT32 *)(UINTN)(EntryArg + 4));
 
       if ((DtMagic == 0xD00DFEED) && (DtSize > 0x1000) && (DtSize < 0x400000)) {
-        BuildMemoryAllocationHob (EntryArg, DtSize, EfiReservedMemoryType);
-        DEBUG ((EFI_D_WARN, "SEC: reserved DT 0x%lx..0x%lx\n", EntryArg, EntryArg + DtSize));
+        //
+        // BuildMemoryAllocationHob asserts that the base is page aligned and
+        // that the length is a power-of-two multiple of it; the ABL drops the
+        // tree at 0xC5B1D0, which is not page aligned, so round outwards.
+        //
+        UINT64  DtBase = EntryArg & ~(UINT64)(EFI_PAGE_SIZE - 1);
+        UINT64  DtEnd  = (EntryArg + DtSize + EFI_PAGE_SIZE - 1) & ~(UINT64)(EFI_PAGE_SIZE - 1);
+
+        BuildMemoryAllocationHob (DtBase, DtEnd - DtBase, EfiReservedMemoryType);
+        DEBUG ((EFI_D_WARN, "SEC: reserved DT 0x%lx..0x%lx\n", DtBase, DtEnd));
       }
     }
 
