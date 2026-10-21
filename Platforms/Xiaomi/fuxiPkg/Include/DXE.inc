@@ -28,7 +28,11 @@
   INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
 
   # XNU 加载器必须编进固件卷：从外部卷加载的驱动会被本 build 的镜像校验拒绝。
-  INF DarwinBootPkg/Driver/DarwinBoot.inf
+  # DarwinBoot is the XNU loader; stage 1 only needs the boot manager UI.
+  # It is also the driver that walks the handed-over device tree, which the
+  # SEC MMU never maps (the tree sits at 0xC5B1D0, outside every
+  # MemoryMapLib descriptor), so touching it faults at FAR 0xC5B1D48.
+  #INF DarwinBootPkg/Driver/DarwinBoot.inf
 
   INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf

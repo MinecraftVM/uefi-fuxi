@@ -126,7 +126,8 @@
   #
   # DarwinBoot（本阶段不加载内核，保留以便第二阶段的 FV 结构一致）
   #
-  DarwinBootPkg/Driver/DarwinBoot.inf
+  # disabled for stage 1, see Include/DXE.inc
+  #DarwinBootPkg/Driver/DarwinBoot.inf
 
   #
   # 板级驱动
