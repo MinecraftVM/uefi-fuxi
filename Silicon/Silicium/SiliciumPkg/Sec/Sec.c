@@ -7,6 +7,7 @@
 #include <Library/DebugLib.h>
 #include <Library/PrePiLib.h>
 #include <Library/DebugAgentLib.h>
+#include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/SerialPortLib.h>
 #include <Library/PlatformSecLib.h>
@@ -174,6 +175,25 @@ SecMain (VOID)
   {
     UINT64  EntryArg = gSecEntryArg0;
 
+    //
+    // Reserve the device tree the previous stage handed over in x0.
+    //
+    // Nothing else marks those bytes as owned, so DXE treats them as free
+    // memory and maps images straight over them. On fuxi the tree sits at
+    // 0xC5B1D0 and DarwinBoot was loaded at exactly that address, which
+    // destroyed the tree and made FuxiBootMemoryDxe walk garbage ranges and
+    // take a second-level translation fault.
+    //
+    if ((EntryArg != 0) && ((EntryArg & 3) == 0)) {
+      UINT32  DtMagic = SwapBytes32 (*(UINT32 *)(UINTN)EntryArg);
+      UINT32  DtSize  = SwapBytes32 (*(UINT32 *)(UINTN)(EntryArg + 4));
+
+      if ((DtMagic == 0xD00DFEED) && (DtSize > 0x1000) && (DtSize < 0x400000)) {
+        BuildMemoryAllocationHob (EntryArg, DtSize, EfiReservedMemoryType);
+        DEBUG ((EFI_D_WARN, "SEC: reserved DT 0x%lx..0x%lx\n", EntryArg, EntryArg + DtSize));
+      }
+    }
+
     BuildGuidDataHob (&gSiliciumEntryArgHobGuid, &EntryArg, sizeof (EntryArg));
   }
 
@@ -182,13 +202,25 @@ SecMain (VOID)
   // Run Library Cconstructors
   DEBUG ((EFI_D_WARN, "SEC: constructor debug\n"));
   BaseDebugLibSerialPortConstructor ();
-  DEBUG ((EFI_D_WARN, "SEC: constructor guided-section\n"));
-  ExtractGuidedSectionLibConstructor ();
-  DEBUG ((EFI_D_WARN, "SEC: constructor mmu\n"));
-  ArmMmuBaseLibConstructor ();
-  DEBUG ((EFI_D_WARN, "SEC: constructor lzma\n"));
-  LzmaDecompressLibConstructor ();
-  DEBUG ((EFI_D_WARN, "SEC: constructors done\n"));
+  {
+    RETURN_STATUS  GuidedStatus;
+    RETURN_STATUS  LzmaStatus;
+
+    DEBUG ((EFI_D_WARN, "SEC: constructor guided-section\n"));
+    GuidedStatus = ExtractGuidedSectionLibConstructor ();
+    DEBUG ((EFI_D_WARN, "SEC: constructor mmu\n"));
+    ArmMmuBaseLibConstructor ();
+    DEBUG ((EFI_D_WARN, "SEC: constructor lzma\n"));
+    LzmaStatus = LzmaDecompressLibConstructor ();
+    DEBUG ((EFI_D_WARN, "SEC: constructors done guided=%r lzma=%r\n", GuidedStatus, LzmaStatus));
+    DEBUG ((EFI_D_WARN, "SEC: fd base=0x%lx size=0x%x sig=%c%c%c%c\n",
+            (UINT64)FixedPcdGet64 (PcdFdBaseAddress),
+            (UINT32)FixedPcdGet32 (PcdFdSize),
+            ((CHAR8 *)(UINTN)FixedPcdGet64 (PcdFdBaseAddress))[0x28],
+            ((CHAR8 *)(UINTN)FixedPcdGet64 (PcdFdBaseAddress))[0x29],
+            ((CHAR8 *)(UINTN)FixedPcdGet64 (PcdFdBaseAddress))[0x2A],
+            ((CHAR8 *)(UINTN)FixedPcdGet64 (PcdFdBaseAddress))[0x2B]));
+  }
   CheckHobList ();
 
   // Decompress all FVs
