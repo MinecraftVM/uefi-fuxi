@@ -11,8 +11,9 @@
 // The UEFI allocation block is identical to sheng's at 0xA7000000, confirming
 // it is a platform-wide SM8550 convention rather than a per-board choice:
 //
-//   0xA7000000  4 MiB  UEFI FD          <- FD_BASE / FD_SIZE for this board
+//   0xA7000000  1 MiB  FD Reserved
 //   0xA7400000  2 MiB  UEFI FD Reserved
+//   0xA7100000  3 MiB  UEFI FD          <- FD_BASE / FD_SIZE
 //   0xA7600000  4 KiB  CPU Vectors
 //   0xA7601000  ...    Info Blk / MMU PageTables / Log Buffer
 //   0xA760D000  ...    UEFI Stack   (matches fuxi.dsc PcdCPUCoresStackBase)
@@ -50,7 +51,8 @@ STATIC EFI_MEMORY_REGION_DESCRIPTOR gMemoryDescriptor[] = {
   {"NOMAP",             0xFF800000, 0x00800000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
 
   // ---- UEFI allocation block ----
-  {"UEFI FD",           0xA7000000, 0x00400000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK},
+  {"FD Reserved",       0xA7000000, 0x00100000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK},
+  {"UEFI FD",           0xA7100000, 0x00300000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK},
   {"UEFI FD Reserved",  0xA7400000, 0x00200000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK},
   {"CPU Vectors",       0xA7600000, 0x00001000, AddMem,   SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
   {"Info Blk",          0xA7601000, 0x00001000, AddMem,   SYS_MEM, SYS_MEM_CAP, RtData, WRITE_BACK_XN},
