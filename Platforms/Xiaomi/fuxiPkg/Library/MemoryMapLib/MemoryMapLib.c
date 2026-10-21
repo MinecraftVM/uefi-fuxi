@@ -27,8 +27,14 @@
 #include <Library/MemoryMapLib.h>
 
 STATIC EFI_MEMORY_REGION_DESCRIPTOR gMemoryDescriptor[] = {
+  // The general-purpose pool must come first: SEC allocates the FV-image
+  // decompression buffer from the TCB before it writes DXE heap HOBs, and
+  // an allocator that hands out the FD region would overwrite the very data
+  // it is decoding (that surfaced as 'Decompress Failed - Invalid Parameter').
+  {"DXE Heap",          0xBAB00000, 0x0D1C0000, AddMem,   SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
+
   // ---- firmware-owned reservations ----
-  {"HobOnlyNoCacheSetting",             0x80000000, 0x01200000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
+  {"NOMAP",             0x80000000, 0x01200000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"RSRV0",             0x81200000, 0x00800000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
   {"XBL DT",            0x81A00000, 0x00040000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
   {"XBL Ramdump",       0x81A40000, 0x001C0000, AddMem,   MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
@@ -41,11 +47,11 @@ STATIC EFI_MEMORY_REGION_DESCRIPTOR gMemoryDescriptor[] = {
   {"DBI Dump",          0xA6100000, 0x00F00000, NoHob,    MMAP_IO, INITIALIZED, Conv,  UNCACHED_UNBUFFERED_XN},
   {"TZApps Reserved",   0xD8800000, 0x08A00000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"RSRV3",             0xEEB00000, 0x04B00000, AddMem,   MEM_RES, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
-  {"HobOnlyNoCacheSetting",             0xFF800000, 0x00800000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
+  {"NOMAP",             0xFF800000, 0x00800000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
 
   // ---- UEFI allocation block ----
-  {"UEFI FD",           0xA7000000, 0x00400000, AddMem,   SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
-  {"UEFI FD Reserved",  0xA7400000, 0x00200000, AddMem,   SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
+  {"UEFI FD",           0xA7000000, 0x00400000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK},
+  {"UEFI FD Reserved",  0xA7400000, 0x00200000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK},
   {"CPU Vectors",       0xA7600000, 0x00001000, AddMem,   SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
   {"Info Blk",          0xA7601000, 0x00001000, AddMem,   SYS_MEM, SYS_MEM_CAP, RtData, WRITE_BACK_XN},
   {"MMU PageTables",    0xA7602000, 0x00003000, AddMem,   SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK_XN},
@@ -67,7 +73,6 @@ STATIC EFI_MEMORY_REGION_DESCRIPTOR gMemoryDescriptor[] = {
   {"Display Reserved",  0xB8000000, 0x02B00000, AddMem,   MEM_RES, SYS_MEM_CAP, Reserv, WRITE_THROUGH_XN},
 
   // ---- 209 MiB of general-purpose RAM for DXE ----
-  {"DXE Heap",          0xBAB00000, 0x0D1C0000, AddMem,   SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
 };
 
 VOID
