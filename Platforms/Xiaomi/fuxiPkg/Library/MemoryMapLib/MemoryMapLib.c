@@ -28,7 +28,7 @@
 
 STATIC EFI_MEMORY_REGION_DESCRIPTOR gMemoryDescriptor[] = {
   // ---- firmware-owned reservations ----
-  {"NOMAP",             0x80000000, 0x01200000, NoMap,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
+  {"HobOnlyNoCacheSetting",             0x80000000, 0x01200000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"RSRV0",             0x81200000, 0x00800000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
   {"XBL DT",            0x81A00000, 0x00040000, AddMem,   SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
   {"XBL Ramdump",       0x81A40000, 0x001C0000, AddMem,   MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
@@ -39,9 +39,9 @@ STATIC EFI_MEMORY_REGION_DESCRIPTOR gMemoryDescriptor[] = {
   {"Display Demura",    0xA2A80000, 0x02B00000, AddMem,   MEM_RES, SYS_MEM_CAP, Reserv, WRITE_THROUGH_XN},
   {"RSRV2",             0xA5580000, 0x00B80000, AddMem,   MEM_RES, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
   {"DBI Dump",          0xA6100000, 0x00F00000, NoHob,    MMAP_IO, INITIALIZED, Conv,  UNCACHED_UNBUFFERED_XN},
-  {"TZApps Reserved",   0xD8800000, 0x08A00000, AddDynamicMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
+  {"TZApps Reserved",   0xD8800000, 0x08A00000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"RSRV3",             0xEEB00000, 0x04B00000, AddMem,   MEM_RES, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
-  {"NOMAP",             0xFF800000, 0x00800000, NoMap,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
+  {"HobOnlyNoCacheSetting",             0xFF800000, 0x00800000, HobOnlyNoCacheSetting,    MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
 
   // ---- UEFI allocation block ----
   {"UEFI FD",           0xA7000000, 0x00400000, AddMem,   SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
