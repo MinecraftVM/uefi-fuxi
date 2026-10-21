@@ -52,8 +52,12 @@ jobs:
       - name: Build
         env:
           UNIXNU_ROOT: ${{ github.workspace }}/UniXNU
+          DARWINBOOT_REPO: https://github.com/UniXNU/DarwinBoot
         run: |
+          # UniXNUPkg comes from package/, DarwinBootPkg from drivers/DarwinBoot.
           git clone --depth 1 "$UNIXNU_REPO" "$UNIXNU_ROOT"
+          mkdir -p "$UNIXNU_ROOT/drivers"
+          git clone --depth 1 "$DARWINBOOT_REPO" "$UNIXNU_ROOT/drivers/DarwinBoot"
           ./build_uefi.py -d fuxi -r DEBUG -c
 
       - name: Inspect result

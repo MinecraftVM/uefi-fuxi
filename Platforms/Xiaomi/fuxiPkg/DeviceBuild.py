@@ -25,9 +25,19 @@ class CommonPlatform():
     Scopes = ('fuxi', 'gcc_aarch64_linux', 'edk2-build')
     WorkspaceRoot = os.path.dirname(os.path.dirname(os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))))
+
+    # UniXNU supplies two packages that edk2 has to see by name:
+    #   package/            -> UniXNUPkg
+    #   drivers/DarwinBoot  -> DarwinBootPkg
+    # shengPkg lists only the first, which is why this platform never built in
+    # uefi-sheng's own CI: Status.md marks sheng as a bring-up candidate, not an
+    # active device, so build_active_devices.sh never touched it.
+    UNIXNU = os.environ.get("UNIXNU_ROOT",
+                            os.path.join(WorkspaceRoot, "..", "UniXNU"))
+
     PackagesPath = (
-        os.path.join(os.environ.get("UNIXNU_ROOT",
-                                    os.path.join(WorkspaceRoot, "..", "UniXNU")), "package"),
+        os.path.join(UNIXNU, "package"),
+        os.path.join(UNIXNU, "drivers", "DarwinBoot"),
         "Platforms/Xiaomi",
         "Common/Mu",
         "Common/Mu_OEM_Sample",
