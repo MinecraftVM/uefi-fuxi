@@ -46,7 +46,12 @@
   # 板级驱动
   #   FuxiBootMemoryDxe 必须在 DXE Core 起来之后、任何大额分配之前加载，
   #   它会把 DTB 描述的可用 DRAM 补进 GCD。
-  INF fuxiPkg/Drivers/FuxiBootMemoryDxe/FuxiBootMemoryDxe.inf
+  # FuxiBootMemoryDxe disabled for bring-up: it derives DRAM 'holes' from the
+  # appended tree, which on this board is the Android live FDT (35 reserved
+  # ranges, Android /chosen), and the ranges it computes make DXE touch MMIO.
+  # That aborted with a second-level translation fault at 0xC5B1D48.
+  # MemoryMapLib already gives DXE a 209 MiB heap, which is enough for the menu.
+  #INF fuxiPkg/Drivers/FuxiBootMemoryDxe/FuxiBootMemoryDxe.inf
 
   #   把电源/音量键发布成 SimpleTextIn，并把自己挂进 ConIn；
   #   没有它 UniXNU 菜单能显示、不能导航。
