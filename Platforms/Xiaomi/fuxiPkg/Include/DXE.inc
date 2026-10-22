@@ -32,7 +32,7 @@
   # It is also the driver that walks the handed-over device tree, which the
   # SEC MMU never maps (the tree sits at 0xC5B1D0, outside every
   # MemoryMapLib descriptor), so touching it faults at FAR 0xC5B1D48.
-  #INF DarwinBootPkg/Driver/DarwinBoot.inf
+  INF DarwinBootPkg/Driver/DarwinBoot.inf
 
   INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
