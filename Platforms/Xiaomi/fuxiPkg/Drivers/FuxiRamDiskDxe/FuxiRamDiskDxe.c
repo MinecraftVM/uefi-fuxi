@@ -197,7 +197,7 @@ LocatePayload (
   for (Index = 0; Index < Count; Index++) {
     EFI_MEMORY_DESCRIPTOR  *Entry = (EFI_MEMORY_DESCRIPTOR *)((UINT8 *)Map + Index * DescSize);
 
-    if (!Scannable (Entry->Type) || (Entry->PhysicalStart >= 0x100000000ULL)) {
+    if (!Scannable (Entry->Type)) {
       continue;
     }
 
