@@ -128,7 +128,6 @@
   #
   # disabled for stage 1, see Include/DXE.inc
   DarwinBootPkg/Driver/DarwinBoot.inf
-  fuxiPkg/Drivers/FuxiProbeDxe/FuxiProbeDxe.inf
   fuxiPkg/Drivers/FuxiRamDiskDxe/FuxiRamDiskDxe.inf
   FatPkg/EnhancedFatDxe/Fat.inf
 
