@@ -285,7 +285,6 @@ FuxiRamDiskEntry (
     }
   }
 
-  mHintSeen = mHintSeen;
   if (mVolumeBase == NULL && !LocatePayload ()) {
     Print (L"SIGNAL: not found\n");
     Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
