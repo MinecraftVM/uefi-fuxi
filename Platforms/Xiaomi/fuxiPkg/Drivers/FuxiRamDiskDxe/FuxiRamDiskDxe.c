@@ -34,10 +34,12 @@ Scannable (
   IN EFI_MEMORY_TYPE  Type
   )
 {
-  // The bootloader describes the ramdisk however it likes; only MMIO windows
-  // are unsafe to read.
-  return (Type != EfiMemoryMappedIO) && (Type != EfiMemoryMappedIOPortSpace) &&
-         (Type != EfiPalCode) && (Type != EfiUnusableMemory);
+  // Only types that the memory map guarantees are backed by normal RAM.
+  // Reserved and MMIO ranges can be listed yet still fault when read.
+  return (Type == EfiConventionalMemory) || (Type == EfiLoaderData) ||
+         (Type == EfiLoaderCode) || (Type == EfiBootServicesData) ||
+         (Type == EfiBootServicesCode) || (Type == EfiRuntimeServicesData) ||
+         (Type == EfiRuntimeServicesCode);
 }
 
 STATIC
