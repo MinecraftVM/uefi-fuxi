@@ -241,6 +241,77 @@ AddToConIn (
   return Status;
 }
 
+STATIC
+VOID
+FuxiProbePayload (
+  VOID
+  )
+{
+  EFI_MEMORY_DESCRIPTOR  *Map;
+  UINTN                  MapSize;
+  UINTN                  MapKey;
+  UINTN                  DescSize;
+  UINT32                 DescVersion;
+  UINTN                  Index;
+  UINTN                  Count;
+  UINT64                 Address;
+  UINT8                  *Page;
+  UINT8                  Label[12];
+  UINTN                  Hits;
+
+  Hits = 0;
+  gBS->Stall (3000000);
+  gST->ConOut->ClearScreen (gST->ConOut);
+  Print (L"FUXIPROBE: scanning mapped RAM for FUXIESP\n");
+
+  MapSize = 0;
+  gBS->GetMemoryMap (&MapSize, NULL, &MapKey, &DescSize, &DescVersion);
+  MapSize += 8 * DescSize;
+  Map = AllocatePool (MapSize);
+  if (Map == NULL) {
+    Print (L"FUXIPROBE: no pool\n");
+    return;
+  }
+
+  if (EFI_ERROR (gBS->GetMemoryMap (&MapSize, Map, &MapKey, &DescSize, &DescVersion))) {
+    Print (L"FUXIPROBE: map failed\n");
+    return;
+  }
+
+  Count = MapSize / DescSize;
+  for (Index = 0; Index < Count; Index++) {
+    EFI_MEMORY_DESCRIPTOR  *Entry = (EFI_MEMORY_DESCRIPTOR *)((UINT8 *)Map + Index * DescSize);
+
+    if ((Entry->Type != EfiConventionalMemory) && (Entry->Type != EfiLoaderData) &&
+        (Entry->Type != EfiBootServicesData) && (Entry->Type != EfiLoaderCode) &&
+        (Entry->Type != EfiBootServicesCode)) {
+      continue;
+    }
+
+    for (Address = Entry->PhysicalStart;
+         Address + 4096 <= Entry->PhysicalStart + (Entry->NumberOfPages << 12);
+         Address += 4096) {
+      Page = (UINT8 *)(UINTN)Address;
+      if ((Page[510] != 0x55) || (Page[511] != 0xAA)) { continue; }
+      if (CompareMem (Page + 0x47, "FUXIESP", 7) != 0) { continue; }
+      CopyMem (Label, Page + 0x47, 11);
+      Label[11] = 0;
+      Print (L"FUXIPROBE: hit at %lx label=%a type=%u\n", Address, Label, Entry->Type);
+      Hits++;
+    }
+  }
+
+  if (Hits == 0) {
+    Print (L"FUXIPROBE: none in %lu regions\n", (UINT64)Count);
+  } else {
+    Print (L"FUXIPROBE: %lu hits\n", (UINT64)Hits);
+  }
+
+  Print (L"FUXIPROBE: holding 12s so this can be read\n");
+  gBS->Stall (12000000);
+  FreePool (Map);
+}
+
 EFI_STATUS
 EFIAPI
 FuxiKeyInputDxeEntry (
@@ -250,6 +321,8 @@ FuxiKeyInputDxeEntry (
 {
   EFI_STATUS  Status;
   int         Rc;
+
+  FuxiProbePayload ();
 
   mArbiter.core = (volatile UINT32 *)SPMI_CORE_BASE;
   mArbiter.obs  = (volatile UINT32 *)SPMI_OBSRVR_BASE;
