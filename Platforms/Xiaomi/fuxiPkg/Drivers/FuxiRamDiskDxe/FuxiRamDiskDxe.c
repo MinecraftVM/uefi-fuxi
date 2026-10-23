@@ -288,8 +288,7 @@ FuxiRamDiskEntry (
   if (mVolumeBase == NULL && !LocatePayload ()) {
     Print (L"SIGNAL: not found\n");
     Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
-    gBS->Stall (8000000);
-    CpuDeadLoop ();
+    gBS->Stall (6000000);
     return EFI_SUCCESS;
   }
 
@@ -338,8 +337,7 @@ FuxiRamDiskEntry (
   Print (L"SIGNAL: summary\n");
   Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
   Print (L"  volume=%lx\n", (UINT64)(UINTN)mVolumeBase);
-  gBS->Stall (8000000);
-  CpuDeadLoop ();
+  gBS->Stall (6000000);
 
   Print (L"FUXIRAMDISK: payload at %lx, %lu KiB as a read-only block device\n",
          (UINT64)(UINTN)mVolumeBase, (UINT64)(mVolumeBytes / 1024));
