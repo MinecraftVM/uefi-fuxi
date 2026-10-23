@@ -327,12 +327,6 @@ FuxiRamDiskEntry (
     return Status;
   }
 
-  // Diagnostic build: stop the boot when the payload is located, so its
-  // presence is visible without reading the console.
-  Print (L"SIGNAL: payload found\n");
-  gBS->Stall (5000000);
-  CpuDeadLoop ();
-
   Print (L"FUXIRAMDISK: payload at %lx, %lu KiB as a read-only block device\n",
          (UINT64)(UINTN)mVolumeBase, (UINT64)(mVolumeBytes / 1024));
 
