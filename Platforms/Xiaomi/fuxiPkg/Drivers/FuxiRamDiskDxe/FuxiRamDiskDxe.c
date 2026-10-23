@@ -25,6 +25,7 @@
 STATIC EFI_BLOCK_IO_MEDIA     mMedia;
 STATIC EFI_BLOCK_IO_PROTOCOL  mBlockIo;
 STATIC UINT8                  *mVolumeBase;
+STATIC BOOLEAN                mLastLabeled;
 STATIC UINTN                  mVolumeBytes;
 
 STATIC
@@ -33,9 +34,10 @@ Scannable (
   IN EFI_MEMORY_TYPE  Type
   )
 {
-  return (Type == EfiConventionalMemory) || (Type == EfiLoaderData) ||
-         (Type == EfiBootServicesData) || (Type == EfiLoaderCode) ||
-         (Type == EfiBootServicesCode);
+  // The bootloader describes the ramdisk however it likes; only MMIO windows
+  // are unsafe to read.
+  return (Type != EfiMemoryMappedIO) && (Type != EfiMemoryMappedIOPortSpace) &&
+         (Type != EfiPalCode) && (Type != EfiUnusableMemory);
 }
 
 STATIC
@@ -54,9 +56,9 @@ IsPayloadVolume (
     return FALSE;
   }
 
-  if (CompareMem (Sector + FUXI_LABEL_OFFSET, "FUXIESP", FUXI_LABEL_LENGTH) != 0) {
-    return FALSE;
-  }
+  // Prefer the expected label, but accept any plausible FAT volume so a
+  // differently labelled payload still mounts.
+  mLastLabeled = (CompareMem (Sector + FUXI_LABEL_OFFSET, "FUXIESP", FUXI_LABEL_LENGTH) == 0);
 
   BytesPerSector = (UINT16)(Sector[11] | (Sector[12] << 8));
   if (BytesPerSector != FUXI_BLOCK_SIZE) {
@@ -72,6 +74,14 @@ IsPayloadVolume (
 
   SectorsPerFat = (UINT32)(Sector[36] | (Sector[37] << 8) | (Sector[38] << 16) | ((UINT32)Sector[39] << 24));
   if (SectorsPerFat == 0) {
+    return FALSE;
+  }
+
+  //
+  // Only a large volume can be the payload; this rejects stray boot sectors in
+  // unrelated RAM without trusting the label alone.
+  //
+  if (*TotalSectors < (64ULL * 1024 * 1024 / FUXI_BLOCK_SIZE)) {
     return FALSE;
   }
 
@@ -197,6 +207,9 @@ LocatePayload (
       if (!IsPayloadVolume (Page, &TotalSectors)) {
         continue;
       }
+
+      Print (L"FUXIRAMDISK: candidate at %lx, %lu sectors, labelled=%d\n",
+             Address, TotalSectors, mLastLabeled ? 1 : 0);
 
       if (Address + TotalSectors * FUXI_BLOCK_SIZE > RegionEnd) {
         // The bootloader may have described the ramdisk as several adjacent
