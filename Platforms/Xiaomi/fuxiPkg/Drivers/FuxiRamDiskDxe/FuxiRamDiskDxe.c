@@ -28,6 +28,8 @@ STATIC EFI_BLOCK_IO_MEDIA     mMedia;
 STATIC EFI_BLOCK_IO_PROTOCOL  mBlockIo;
 STATIC UINT8                  *mVolumeBase;
 STATIC BOOLEAN                mLastLabeled;
+STATIC BOOLEAN                mHintSeen;
+STATIC UINT64                 mHintValue;
 STATIC UINTN                  mVolumeBytes;
 
 STATIC
@@ -266,6 +268,8 @@ FuxiRamDiskEntry (
         UINT64  Probe;
         UINT64  Total;
 
+        mHintSeen = TRUE;
+        mHintValue = Base;
         Print (L"FUXIRAMDISK: device tree at %lx, looking below it\n", Base);
         for (Probe = Base; (Probe > Base - 0x10000000ULL) && (Probe >= FUXI_BLOCK_SIZE); Probe -= FUXI_BLOCK_SIZE) {
           if (IsPayloadVolume ((UINT8 *)(UINTN)Probe, &Total)) {
@@ -281,7 +285,12 @@ FuxiRamDiskEntry (
     }
   }
 
+  mHintSeen = mHintSeen;
   if (mVolumeBase == NULL && !LocatePayload ()) {
+    Print (L"SIGNAL: not found\n");
+    Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
+    gBS->Stall (8000000);
+    CpuDeadLoop ();
     return EFI_SUCCESS;
   }
 
@@ -326,6 +335,12 @@ FuxiRamDiskEntry (
   if (EFI_ERROR (Status)) {
     return Status;
   }
+
+  Print (L"SIGNAL: summary\n");
+  Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
+  Print (L"  volume=%lx\n", (UINT64)(UINTN)mVolumeBase);
+  gBS->Stall (8000000);
+  CpuDeadLoop ();
 
   Print (L"FUXIRAMDISK: payload at %lx, %lu KiB as a read-only block device\n",
          (UINT64)(UINTN)mVolumeBase, (UINT64)(mVolumeBytes / 1024));
