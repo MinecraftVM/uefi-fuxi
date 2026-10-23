@@ -239,6 +239,9 @@ FuxiRamDiskEntry (
 {
   EFI_STATUS                Status;
 
+  // Make the run visible: the boot manager clears the screen afterwards.
+  gBS->Stall (3000000);
+  gST->ConOut->ClearScreen (gST->ConOut);
   Print (L"FUXIRAMDISK: driver entry\n");
   EFI_HANDLE                Handle;
   EFI_DEVICE_PATH_PROTOCOL  *Path;
