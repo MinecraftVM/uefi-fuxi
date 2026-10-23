@@ -15,6 +15,7 @@
 #include <Library/BaseMemoryLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/DevicePathLib.h>
+#include <Library/HobLib.h>
 #include <Protocol/BlockIo.h>
 #include <Protocol/DevicePath.h>
 
@@ -249,7 +250,33 @@ FuxiRamDiskEntry (
   EFI_DEVICE_PATH_PROTOCOL  *Path;
   VENDOR_DEVICE_PATH        Vendor;
 
-  if (!LocatePayload ()) {
+  // SEC publishes the payload address it derived from the device tree; that is
+  // exact, so prefer it over scanning memory.
+  {
+    EFI_PEI_HOB_POINTERS  Hob;
+    STATIC CONST EFI_GUID PayloadGuid = { 0x8f2c1e44, 0x9d3a, 0x4c77, { 0xb1, 0x2e, 0x77, 0x5a, 0x10, 0x4c, 0x9e, 0x31 } };
+
+    Hob.Raw = GetHobList ();
+    while (!END_OF_HOB_LIST (Hob)) {
+      if ((Hob.Header->HobType == EFI_HOB_TYPE_GUID_EXTENSION) &&
+          (CompareGuid (&Hob.Guid->Name, &PayloadGuid))) {
+        UINT64  Base = *(UINT64 *)(Hob.Guid + 1);
+
+        Print (L"FUXIRAMDISK: SEC payload hint at %lx\n", Base);
+        {
+          UINT64  Total;
+          if (IsPayloadVolume ((UINT8 *)(UINTN)Base, &Total)) {
+            mVolumeBase  = (UINT8 *)(UINTN)Base;
+            mVolumeBytes = (UINTN)(Total * FUXI_BLOCK_SIZE);
+          }
+        }
+      }
+
+      Hob.Raw = GET_NEXT_HOB (Hob);
+    }
+  }
+
+  if (mVolumeBase == NULL && !LocatePayload ()) {
     return EFI_SUCCESS;
   }
 
