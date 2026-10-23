@@ -207,7 +207,7 @@ SecMain (VOID)
         BuildMemoryAllocationHob (DtBase, DtEnd - DtBase, EfiReservedMemoryType);
 
 
-        PayloadBase = ALIGN_VALUE ((UINT64)EntryArg + DtSize, EFI_PAGE_SIZE);
+        PayloadBase = (UINT64)EntryArg;  // the payload sits just below the device tree
 
 
         BuildGuidDataHob (&PayloadGuid, &PayloadBase, sizeof (PayloadBase));
