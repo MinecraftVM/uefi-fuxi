@@ -262,12 +262,16 @@ FuxiRamDiskEntry (
           (CompareGuid (&Hob.Guid->Name, &PayloadGuid))) {
         UINT64  Base = *(UINT64 *)(Hob.Guid + 1);
 
-        Print (L"FUXIRAMDISK: SEC payload hint at %lx\n", Base);
-        {
-          UINT64  Total;
-          if (IsPayloadVolume ((UINT8 *)(UINTN)Base, &Total)) {
-            mVolumeBase  = (UINT8 *)(UINTN)Base;
+        UINT64  Probe;
+        UINT64  Total;
+
+        Print (L"FUXIRAMDISK: device tree at %lx, looking below it\n", Base);
+        for (Probe = Base; (Probe > Base - 0x10000000ULL) && (Probe >= FUXI_BLOCK_SIZE); Probe -= FUXI_BLOCK_SIZE) {
+          if (IsPayloadVolume ((UINT8 *)(UINTN)Probe, &Total)) {
+            Print (L"FUXIRAMDISK: payload at %lx below the tree\n", Probe);
+            mVolumeBase  = (UINT8 *)(UINTN)Probe;
             mVolumeBytes = (UINTN)(Total * FUXI_BLOCK_SIZE);
+            break;
           }
         }
       }
