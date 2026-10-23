@@ -199,8 +199,9 @@ LocatePayload (
       }
 
       if (Address + TotalSectors * FUXI_BLOCK_SIZE > RegionEnd) {
-        Print (L"FUXIRAMDISK: candidate at %lx does not fit its region\n", Address);
-        continue;
+        // The bootloader may have described the ramdisk as several adjacent
+        // descriptors; trust the BPB size rather than dropping a real volume.
+        Print (L"FUXIRAMDISK: volume at %lx crosses its descriptor, using the BPB size\n", Address);
       }
 
       mVolumeBase  = Page;
@@ -233,7 +234,7 @@ FuxiRamDiskEntry (
   ZeroMem (&Vendor, sizeof (Vendor));
   Vendor.Header.Type    = HARDWARE_DEVICE_PATH;
   Vendor.Header.SubType = HW_VENDOR_DP;
-  Vendor.Header.Length  = (UINT8)sizeof (VENDOR_DEVICE_PATH);
+  SetDevicePathNodeLength (&Vendor.Header, sizeof (VENDOR_DEVICE_PATH));
   CopyGuid (&Vendor.Guid, &gEfiCallerIdGuid);
 
   Path = AppendDevicePathNode (NULL, (EFI_DEVICE_PATH_PROTOCOL *)&Vendor);
