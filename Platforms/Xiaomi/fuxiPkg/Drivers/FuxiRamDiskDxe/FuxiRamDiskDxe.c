@@ -165,7 +165,6 @@ FuxiBlockFlush (
   return EFI_SUCCESS;
 }
 
-STATIC
 BOOLEAN
 LocatePayload (
   VOID
