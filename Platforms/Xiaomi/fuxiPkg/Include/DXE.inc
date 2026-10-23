@@ -34,6 +34,8 @@
   # MemoryMapLib descriptor), so touching it faults at FAR 0xC5B1D48.
   INF DarwinBootPkg/Driver/DarwinBoot.inf
   INF fuxiPkg/Drivers/FuxiProbeDxe/FuxiProbeDxe.inf
+  INF fuxiPkg/Drivers/FuxiRamDiskDxe/FuxiRamDiskDxe.inf
+  INF FatPkg/EnhancedFatDxe/Fat.inf
 
   INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
