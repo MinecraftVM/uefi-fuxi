@@ -26,6 +26,7 @@
   BaseMemoryLib
   MemoryAllocationLib
   DevicePathLib
+  HobLib
 
 [Protocols]
   gEfiBlockIoProtocolGuid
