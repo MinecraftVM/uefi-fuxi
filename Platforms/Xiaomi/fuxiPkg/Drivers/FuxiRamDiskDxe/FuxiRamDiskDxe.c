@@ -285,10 +285,13 @@ FuxiRamDiskEntry (
     }
   }
 
-  if (mVolumeBase == NULL && !LocatePayload ()) {
-    Print (L"SIGNAL: not found\n");
+  if (mVolumeBase == NULL) {
+    // A full RAM sweep takes far too long and looks like a hang; report what
+    // the SEC hint was and stop, which is all this diagnostic build needs.
+    Print (L"SIGNAL: no volume from the hint\n");
     Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
-    gBS->Stall (6000000);
+    gBS->Stall (8000000);
+    CpuDeadLoop ();
     return EFI_SUCCESS;
   }
 
