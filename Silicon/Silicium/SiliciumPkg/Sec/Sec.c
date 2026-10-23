@@ -21,6 +21,7 @@
 
 // First argument (x0) of the previous stage, saved by ModuleEntryPoint.S
 extern UINT64  gSecEntryArg0;
+extern UINT64  gSecEntryArg1;
 
 // The library constructors ProcessLibraryConstructorList () runs for this module, in its generated order, called one by one so the screen
 // shows which one a stall is in (an entry here that the generated list lacks fails to link, which is the check).
@@ -207,7 +208,7 @@ SecMain (VOID)
         BuildMemoryAllocationHob (DtBase, DtEnd - DtBase, EfiReservedMemoryType);
 
 
-        PayloadBase = (UINT64)EntryArg;  // the payload sits just below the device tree
+        PayloadBase = gSecEntryArg1 + 0x300000;  // the payload sits just below the device tree
 
 
         BuildGuidDataHob (&PayloadGuid, &PayloadBase, sizeof (PayloadBase));
