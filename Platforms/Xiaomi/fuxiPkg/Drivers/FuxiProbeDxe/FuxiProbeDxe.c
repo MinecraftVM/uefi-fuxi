@@ -59,6 +59,8 @@ FuxiProbeEntry (
   UINTN                  Hits;
   UINT8                  Label[12];
 
+  // The DXE log would scroll this away; clear first and stop the boot.
+  gST->ConOut->ClearScreen (gST->ConOut);
   Print (L"FUXIPROBE: walking the memory map for FUXIESP\n");
 
   MapSize = 0;
