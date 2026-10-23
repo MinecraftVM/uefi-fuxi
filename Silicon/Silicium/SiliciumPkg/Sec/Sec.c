@@ -189,6 +189,13 @@ SecMain (VOID)
       UINT32  DtSize  = SwapBytes32 (*(UINT32 *)(UINTN)(EntryArg + 4));
 
       if ((DtMagic == 0xD00DFEED) && (DtSize > 0x1000) && (DtSize < 0x400000)) {
+      //
+      // The boot image carries the UniXNU payload right behind the device tree.
+      // Publish its address so the payload block driver does not have to guess.
+      //
+      STATIC CONST EFI_GUID  PayloadGuid = { 0x8f2c1e44, 0x9d3a, 0x4c77, { 0xb1, 0x2e, 0x77, 0x5a, 0x10, 0x4c, 0x9e, 0x31 } };
+      UINT64                 PayloadBase;
+
         //
         // BuildMemoryAllocationHob asserts that the base is page aligned and
         // that the length is a power-of-two multiple of it; the ABL drops the
@@ -198,6 +205,12 @@ SecMain (VOID)
         UINT64  DtEnd  = (EntryArg + DtSize + EFI_PAGE_SIZE - 1) & ~(UINT64)(EFI_PAGE_SIZE - 1);
 
         BuildMemoryAllocationHob (DtBase, DtEnd - DtBase, EfiReservedMemoryType);
+
+
+        PayloadBase = ALIGN_VALUE ((UINT64)EntryArg + DtSize, EFI_PAGE_SIZE);
+
+
+        BuildGuidDataHob (&PayloadGuid, &PayloadBase, sizeof (PayloadBase));
         DEBUG ((EFI_D_WARN, "SEC: reserved DT 0x%lx..0x%lx\n", DtBase, DtEnd));
       }
     }
