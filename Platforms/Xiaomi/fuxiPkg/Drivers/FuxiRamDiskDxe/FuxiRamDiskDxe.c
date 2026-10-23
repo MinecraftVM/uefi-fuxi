@@ -202,7 +202,8 @@ LocatePayload (
 
     RegionEnd = Entry->PhysicalStart + (Entry->NumberOfPages << 12);
 
-    for (Address = Entry->PhysicalStart; Address + FUXI_BLOCK_SIZE <= RegionEnd; Address += 4096) {
+    // The bootloader may place the ramdisk on a 512-byte boundary.
+    for (Address = Entry->PhysicalStart; Address + FUXI_BLOCK_SIZE <= RegionEnd; Address += FUXI_BLOCK_SIZE) {
       Page = (UINT8 *)(UINTN)Address;
       if (!IsPayloadVolume (Page, &TotalSectors)) {
         continue;
