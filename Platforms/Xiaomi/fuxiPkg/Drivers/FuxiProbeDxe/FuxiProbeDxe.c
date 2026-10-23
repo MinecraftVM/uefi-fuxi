@@ -13,6 +13,7 @@
 #include <Library/UefiLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/MemoryAllocationLib.h>
+#include <Library/CpuLib.h>
 
 STATIC
 BOOLEAN
@@ -113,6 +114,10 @@ FuxiProbeEntry (
   } else {
     Print (L"FUXIPROBE: %lu hits\n", (UINT64)Hits);
   }
+
+  // The boot manager clears the screen, so halt here with the result visible.
+  Print (L"FUXIPROBE: halted for observation, power-cycle to continue\n");
+  CpuDeadLoop ();
 
   return EFI_SUCCESS;
 }
