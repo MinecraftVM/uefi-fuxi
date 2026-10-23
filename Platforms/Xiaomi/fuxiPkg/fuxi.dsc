@@ -128,7 +128,7 @@
   #
   # disabled for stage 1, see Include/DXE.inc
   DarwinBootPkg/Driver/DarwinBoot.inf
-  FuxiProbeDxe/FuxiProbeDxe.inf
+  Drivers/FuxiProbeDxe/FuxiProbeDxe.inf
 
   #
   # 板级驱动
