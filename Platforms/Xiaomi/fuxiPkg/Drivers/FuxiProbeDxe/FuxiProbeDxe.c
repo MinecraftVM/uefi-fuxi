@@ -59,6 +59,10 @@ FuxiProbeEntry (
   UINTN                  Hits;
   UINT8                  Label[12];
 
+  // Dispatched with Depex TRUE this can run before the console drivers are
+  // up; give them a few seconds so ClearScreen and Print actually land.
+  gBS->Stall (4000000);
+
   // The DXE log would scroll this away; clear first and stop the boot.
   gST->ConOut->ClearScreen (gST->ConOut);
   Print (L"FUXIPROBE: walking the memory map for FUXIESP\n");
