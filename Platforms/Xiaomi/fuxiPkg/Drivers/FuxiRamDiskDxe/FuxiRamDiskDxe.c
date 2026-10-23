@@ -193,10 +193,11 @@ LocatePayload (
   }
 
   Count = MapSize / DescSize;
+  Print (L"FUXIRAMDISK: scanning %lu memory regions\n", (UINT64)Count);
   for (Index = 0; Index < Count; Index++) {
     EFI_MEMORY_DESCRIPTOR  *Entry = (EFI_MEMORY_DESCRIPTOR *)((UINT8 *)Map + Index * DescSize);
 
-    if (!Scannable (Entry->Type)) {
+    if (!Scannable (Entry->Type) || (Entry->PhysicalStart >= 0x100000000ULL)) {
       continue;
     }
 
@@ -237,6 +238,8 @@ FuxiRamDiskEntry (
   )
 {
   EFI_STATUS                Status;
+
+  Print (L"FUXIRAMDISK: driver entry\n");
   EFI_HANDLE                Handle;
   EFI_DEVICE_PATH_PROTOCOL  *Path;
   VENDOR_DEVICE_PATH        Vendor;
