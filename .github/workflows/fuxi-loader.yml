@@ -26,6 +26,7 @@ jobs:
           sed -i 's|^python3 "$MKBOOTIMG"|exit 0\npython3 "$MKBOOTIMG"|' build.sh
           sed -i 's/-Werror/-Wno-error -Wno-array-bounds -Wno-stringop-overflow/' build.sh
           cp "${{ github.workspace }}/ours/fuxi-loader-build/start.S" start.S
+          cp "${{ github.workspace }}/ours/fuxi-loader-build/loader.c" loader.c
           sed -i 's/^ b.ne fatal/ nop \/* ABL drops to EL1 on this unit *\//' start.S
           grep -n "CurrentEL" -A2 start.S | head -6
           grep -n "Wno-error" build.sh | head -2
