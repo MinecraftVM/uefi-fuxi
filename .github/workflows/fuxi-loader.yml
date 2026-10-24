@@ -23,7 +23,7 @@ jobs:
           cd src/shim/fuxi-loader
           sed -i 's/if reserved:/if False:/' build.sh
           sed -i 's/assert match and int(match\[1\], 16) == 0x25ac8/assert match/' build.sh
-          sed -i 's|python3 "$MKBOOTIMG"|true #|' build.sh
+          sed -i 's|^python3 "$MKBOOTIMG"|exit 0\npython3 "$MKBOOTIMG"|' build.sh
           sed -i 's/-Werror/-Wno-error -Wno-array-bounds -Wno-stringop-overflow/' build.sh
           grep -n "Wno-error" build.sh | head -2
           grep -n "if False" build.sh | head -3
