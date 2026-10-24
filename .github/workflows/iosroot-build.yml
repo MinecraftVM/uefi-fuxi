@@ -36,6 +36,7 @@ jobs:
           sudo mkdir -p /Volumes/iOSRoot/private/preboot/Cryptexes/OS /Volumes/iOSRoot/private/preboot/Cryptexes/App
           sudo rsync -aH --numeric-ids /tmp/sysos/ /Volumes/iOSRoot/private/preboot/Cryptexes/OS/
           sudo rsync -aH --numeric-ids /tmp/appos/ /Volumes/iOSRoot/private/preboot/Cryptexes/App/
+          sudo chown -R 0:0 /Volumes/iOSRoot
           df -h /Volumes/iOSRoot
       - name: Apply the SWEET root additions
         run: |
