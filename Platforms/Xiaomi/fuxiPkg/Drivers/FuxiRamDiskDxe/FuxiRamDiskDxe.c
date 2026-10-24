@@ -246,7 +246,6 @@ FuxiRamDiskEntry (
 
   // Make the run visible: the boot manager clears the screen afterwards.
   gBS->Stall (3000000);
-  gST->ConOut->ClearScreen (gST->ConOut);
   Print (L"FUXIRAMDISK: driver entry\n");
   EFI_HANDLE                Handle;
   EFI_DEVICE_PATH_PROTOCOL  *Path;
@@ -289,8 +288,7 @@ FuxiRamDiskEntry (
     // the SEC hint was and stop, which is all this diagnostic build needs.
     Print (L"SIGNAL: no volume from the hint\n");
     Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
-    gBS->Stall (8000000);
-    CpuDeadLoop ();
+    gBS->Stall (3000000);
     return EFI_SUCCESS;
   }
 
@@ -339,7 +337,7 @@ FuxiRamDiskEntry (
   Print (L"SIGNAL: summary\n");
   Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
   Print (L"  volume=%lx\n", (UINT64)(UINTN)mVolumeBase);
-  gBS->Stall (6000000);
+  gBS->Stall (3000000);
 
   Print (L"FUXIRAMDISK: payload at %lx, %lu KiB as a read-only block device\n",
          (UINT64)(UINTN)mVolumeBase, (UINT64)(mVolumeBytes / 1024));
