@@ -11,6 +11,7 @@ uint32_t probe_fdt_bytes(void);
 
 #define BOOT_LINE_LENGTH	608
 #define PAGE_16K		0x4000UL
+#define ADT_MAX		0x10000UL
 
 struct payload_seg {
 	uint64_t vmaddr, vmsize, file_off, file_size;
@@ -113,8 +114,8 @@ static const char *loader_boot(void)
  if (p->phys_base != 0x8c0000000ULL || (p->mem_size != 0x40000000ULL && p->mem_size != FG_RAM_SIZE) ||
      (p->virt_base & (0x2000000-1)) || (p->kernel_end & (PAGE_16K-1)) ||
      p->kernel_end < p->virt_base ||
-     p->kernel_end - p->virt_base > p->mem_size - 2*PAGE_16K ||
-     !p->adt_size || p->adt_size > PAGE_16K || (p->adt_off & 7) ||
+     p->kernel_end - p->virt_base > p->mem_size - 8*PAGE_16K ||
+     !p->adt_size || p->adt_size > ADT_MAX || (p->adt_off & 7) ||
      p->adt_off > length || p->adt_size > length-p->adt_off ||
      p->cmdline[BOOT_LINE_LENGTH-1])
   return "unsafe Fuxi memory layout";
