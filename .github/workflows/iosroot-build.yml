@@ -65,10 +65,13 @@ jobs:
             sudo install -o 272 -g 272 -m 0644 /dev/null "$db/$d/.migrated"
           done
           sudo install -d -m 0700 -o 0 -g 0 "$R/private/var/keybags"
-          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
-            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
-            '<plist version="1.0"><dict><key>KeyBagKeys</key><data>U1dFRVQ=</data></dict></plist>' |
-            sudo install -m 0600 -o 0 -g 0 /dev/stdin "$R/private/var/keybags/systembag.kb"
+          cat > /tmp/systembag.kb <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>KeyBagKeys</key><data>U1dFRVQ=</data></dict></plist>
+          PLIST
+          sed -i '' 's/^          //' /tmp/systembag.kb
+          sudo install -m 0600 -o 0 -g 0 /tmp/systembag.kb "$R/private/var/keybags/systembag.kb"
       - name: Detach and report
         run: |
           set -euxo pipefail
