@@ -31,7 +31,7 @@ jobs:
           echo "device=$DEV"
           newfs_hfs -s -J -v iOSRoot "$DEV"
           hdiutil detach "$DEV" -force || true
-          hdiutil attach -nobrowse -imagekey diskimage-class=CRawDiskImage -mountpoint /Volumes/iOSRoot root.img
+          sudo hdiutil attach -nobrowse -owners on -imagekey diskimage-class=CRawDiskImage -mountpoint /Volumes/iOSRoot root.img
           sudo rsync -aH --numeric-ids /tmp/os/    /Volumes/iOSRoot/
           sudo mkdir -p /Volumes/iOSRoot/private/preboot/Cryptexes/OS /Volumes/iOSRoot/private/preboot/Cryptexes/App
           sudo rsync -aH --numeric-ids /tmp/sysos/ /Volumes/iOSRoot/private/preboot/Cryptexes/OS/
