@@ -23,14 +23,11 @@ jobs:
       - name: Relax the pinned firmware checks
         run: |
           cd src/shim/fuxi-loader
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('build.sh'); s = p.read_text()
-          s = s.replace("if reserved:", "if False:")
-          s = s.replace("assert match and int(match[1], 16) == 0x25ac8", "assert match")
-          p.write_text(s)
-          print('patched')
-          PY
+          sed -i 's/if reserved:/if False:/' build.sh
+          sed -i 's/assert match and int(match\[1\], 16) == 0x25ac8/assert match/' build.sh
+          grep -n "if False" build.sh | head -3
+          grep -n "assert match" build.sh | head -3
+
       - name: Build the boot image
         env:
           CLANG: clang
