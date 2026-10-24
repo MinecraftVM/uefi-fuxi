@@ -283,9 +283,26 @@ FuxiRamDiskEntry (
     }
   }
 
+  if ((mVolumeBase == NULL) && mHintSeen && (mHintValue >= 0x40000000ULL)) {
+    // The payload sits in the same buffer the bootloader filled, just before the
+    // hint SEC derived from it. 128 MiB of 512-byte steps is a second of work
+    // and never leaves the mapped image.
+    UINT64  Probe;
+    UINT64  Total;
+
+    for (Probe = mHintValue & ~(UINT64)(FUXI_BLOCK_SIZE - 1);
+         Probe > mHintValue - 0x08000000ULL;
+         Probe -= FUXI_BLOCK_SIZE) {
+      if (IsPayloadVolume ((UINT8 *)(UINTN)Probe, &Total)) {
+        mVolumeBase  = (UINT8 *)(UINTN)Probe;
+        mVolumeBytes = (UINTN)(Total * FUXI_BLOCK_SIZE);
+        Print (L"FUXIRAMDISK: payload found at %lx below the hint\n", Probe);
+        break;
+      }
+    }
+  }
+
   if (mVolumeBase == NULL) {
-    // A full RAM sweep takes far too long and looks like a hang; report what
-    // the SEC hint was and stop, which is all this diagnostic build needs.
     Print (L"SIGNAL: no volume from the hint\n");
     Print (L"  hob=%d base=%lx\n", mHintSeen ? 1 : 0, mHintValue);
     gBS->Stall (3000000);
