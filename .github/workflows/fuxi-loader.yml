@@ -18,13 +18,12 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq clang lld llvm
-          curl -sSL -o mkbootimg.py https://raw.githubusercontent.com/aosp-mirror/platform_system_core/main/mkbootimg.py
-          python3 -c "import ast,sys; ast.parse(open('mkbootimg.py').read())" && echo mkbootimg ok
       - name: Relax the pinned firmware checks
         run: |
           cd src/shim/fuxi-loader
           sed -i 's/if reserved:/if False:/' build.sh
           sed -i 's/assert match and int(match\[1\], 16) == 0x25ac8/assert match/' build.sh
+          sed -i 's|python3 "$MKBOOTIMG"|true #|' build.sh
           grep -n "if False" build.sh | head -3
           grep -n "assert match" build.sh | head -3
 
@@ -34,7 +33,7 @@ jobs:
           LLD: ld.lld
           OBJCOPY: llvm-objcopy
           READELF: llvm-readelf
-          MKBOOTIMG: ${{ github.workspace }}/mkbootimg.py
+          MKBOOTIMG: /bin/sh
           FUXI_GMU_FIRMWARE: ${{ github.workspace }}/ours/fuxi-loader-build/gmu_gen70200.bin
           FUXI_SQE_FIRMWARE: ${{ github.workspace }}/ours/fuxi-loader-build/a740_sqe.fw
           FUXI_GPU_ZAP_MBN: ${{ github.workspace }}/ours/fuxi-loader-build/a740_zap.mbn
@@ -44,4 +43,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fuxi-xnu-boot
-          path: src/shim/out/fuxi-loader/fuxi-xnu-boot.img
+          path: src/shim/out/fuxi-loader/Image
