@@ -33,7 +33,6 @@
   # SEC MMU never maps (the tree sits at 0xC5B1D0, outside every
   # MemoryMapLib descriptor), so touching it faults at FAR 0xC5B1D48.
   INF DarwinBootPkg/Driver/DarwinBoot.inf
-  INF fuxiPkg/Drivers/FuxiRamDiskDxe/FuxiRamDiskDxe.inf
   INF FatPkg/EnhancedFatDxe/Fat.inf
 
   INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
